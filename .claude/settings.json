@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash .claude/skills/audit-projet/scripts/audit_projet.sh *)",
+      "Bash(./gradlew compileDebugKotlin *)",
+      "Bash(./gradlew :app:lintDebug *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)"
+    ],
+    "deny": [
+      "Read(./local.properties)",
+      "Read(./.env)",
+      "Read(./**/google-services.json)"
+    ]
+  }
+}
