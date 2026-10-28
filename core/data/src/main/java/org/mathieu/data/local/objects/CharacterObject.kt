@@ -3,8 +3,10 @@ package org.mathieu.data.local.objects
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
 import org.mathieu.data.remote.responses.CharacterResponse
+import org.mathieu.data.remote.responses.idFromUrl
 import org.mathieu.data.repositories.tryOrNull
 import org.mathieu.domain.models.character.*
+import org.mathieu.domain.models.location.LocationPreview
 
 /**
  * Represents a character entity stored in the SQLite database. This object provides fields
@@ -41,6 +43,13 @@ internal class CharacterObject: RealmObject {
 }
 
 
+/**
+ * Transforme la réponse de l'API en objet Realm prêt à être inséré.
+ * Les lieux ne sont gardés que par nom et identifiant : leur détail vit dans la table des lieux.
+ *
+ * @receiver la réponse reçue pour un personnage.
+ * @return le [CharacterObject] correspondant.
+ */
 internal fun CharacterResponse.toRealmObject() = CharacterObject().also { obj ->
     obj.id = id
     obj.name = name
@@ -49,14 +58,19 @@ internal fun CharacterResponse.toRealmObject() = CharacterObject().also { obj ->
     obj.type = type
     obj.gender = gender
     obj.originName = origin.name
-    obj.originId = tryOrNull { origin.url.split("/").last().toInt() } ?: -1
+    obj.originId = origin.url.idFromUrl() ?: -1
     obj.locationName = location.name
-    obj.locationId = tryOrNull { location.url.split("/").last().toInt() } ?: -1
+    obj.locationId = location.url.idFromUrl() ?: -1
     obj.image = image
     obj.created = created
 }
 
-internal fun CharacterObject.toModel() = Character(
+/**
+ * @receiver le personnage lu en base.
+ * @param location dernier lieu connu, chargé à part car la table des personnages n'en garde que l'identifiant.
+ * @return le [Character] complet.
+ */
+internal fun CharacterObject.toModel(location: LocationPreview?) = Character(
     id = id,
     name = name,
     status = tryOrNull { CharacterStatus.valueOf(status) } ?: CharacterStatus.Unknown,
@@ -64,6 +78,6 @@ internal fun CharacterObject.toModel() = Character(
     type = type,
     gender = tryOrNull { CharacterGender.valueOf(gender) } ?: CharacterGender.Unknown,
     origin = originName to originId,
-    location = locationName to locationId,
+    location = location,
     avatarUrl = image
 )

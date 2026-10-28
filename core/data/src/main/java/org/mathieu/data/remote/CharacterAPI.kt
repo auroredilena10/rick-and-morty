@@ -8,6 +8,12 @@ import io.ktor.http.HttpStatusCode
 import org.mathieu.data.remote.responses.CharacterResponse
 import org.mathieu.data.remote.responses.PaginatedResponse
 
+/**
+ * Service distant des personnages : il ne fait que l'appel HTTP et rend la forme brute du JSON ;
+ * le choix entre base et réseau appartient au repository.
+ *
+ * @param client client Ktor partagé, déjà configuré avec l'URL de l'API.
+ */
 internal class CharacterApi(private val client: HttpClient) {
 
     /**
@@ -38,6 +44,19 @@ internal class CharacterApi(private val client: HttpClient) {
      */
     suspend fun getCharacter(id: Int): CharacterResponse? = client
         .get("character/$id")
+        .accept(HttpStatusCode.OK)
+        .body()
+
+    /**
+     * Demande plusieurs personnages en un seul appel, pour ne pas faire une requête par résident d'un lieu.
+     * Les crochets forcent l'API à répondre par une liste, même quand il n'y a qu'un seul identifiant.
+     *
+     * @param ids identifiants des personnages voulus.
+     * @return la liste des [CharacterResponse] trouvés.
+     * @throws HttpException si la requête échoue ou si le code n'est pas [HttpStatusCode.OK].
+     */
+    suspend fun getCharacters(ids: List<Int>): List<CharacterResponse> = client
+        .get("character/[${ids.joinToString(",")}]")
         .accept(HttpStatusCode.OK)
         .body()
 

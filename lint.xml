@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configuration du Lint partagée par la commande Gradle et l'analyse d'Android Studio, pour tous les modules. -->
+<lint>
+    <!--
+        Les versions plus récentes proposées (AGP 9, Kotlin 2, Koin 4, Realm 3…) imposent une migration complète
+        du projet, aujourd'hui en Kotlin 1.8 : les versions restent figées dans gradle.properties.
+    -->
+    <issue id="GradleDependency" severity="ignore" />
+</lint>

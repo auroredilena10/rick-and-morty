@@ -55,11 +55,6 @@ android {
         jvmTarget = "1.8"
     }
 
-    lint {
-        // Les versions récentes proposées (Koin 4, Navigation 2.10) exigent Kotlin 2 : elles casseraient ce projet en Kotlin 1.8.
-        disable += "GradleDependency"
-    }
-
 }
 // endregion
 

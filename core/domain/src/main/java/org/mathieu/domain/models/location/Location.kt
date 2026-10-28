@@ -5,6 +5,9 @@ import org.mathieu.domain.models.character.Character
 /**
  * Represents a specific location within a universe or dimension.
  *
+ * Forme complète d'un lieu, à demander seulement quand on affiche ses résidents : les charger coûte cher.
+ * Partout ailleurs, [LocationPreview] suffit.
+ *
  * @property id The unique identifier for the location.
  * @property name The name of the location.
  * @property type The type or category of the location.

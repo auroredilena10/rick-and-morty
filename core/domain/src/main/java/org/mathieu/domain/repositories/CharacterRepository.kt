@@ -3,6 +3,11 @@ package org.mathieu.domain.repositories
 import kotlinx.coroutines.flow.Flow
 import org.mathieu.domain.models.character.Character
 
+/**
+ * Contrat pour obtenir les personnages : le Domain dit ce dont l'application a besoin,
+ * la couche Data décide d'où ça vient. Les ViewModels ne dépendent que de cette interface,
+ * ce qui permet de changer de stockage ou de la remplacer par une fausse implémentation sans les toucher.
+ */
 interface CharacterRepository {
     /**
      * Fetches a list of characters from the data source. The function streams the results

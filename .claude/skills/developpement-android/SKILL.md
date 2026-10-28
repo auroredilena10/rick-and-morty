@@ -1,6 +1,6 @@
 ---
 name: developpement-android
-description: Guide l'écriture, la modification et la relecture du code Kotlin Android de ce projet : épreuve ou feature complète, écran (Screen, Content, ViewModel, State, Action), Repository, objet Realm et API Ktor, Manager et capacité native Android, navigation, Manifest, Gradle, ressources, KDoc. À utiliser pour toute demande qui touche au code (« fais l'épreuve N », « ajoute l'écran X », « branche l'API », « fais vibrer au clic », « commente », « corrige l'avertissement », « explique l'architecture »).
+description: "Guide l'écriture, la modification et la relecture du code Kotlin Android de ce projet : épreuve ou feature complète, écran (Screen, Content, ViewModel, State, Action), Repository, objet Realm et API Ktor, Manager et capacité native Android, navigation, Manifest, Gradle, ressources, KDoc. À utiliser pour toute demande qui touche au code (« fais l'épreuve N », « ajoute l'écran X », « branche l'API », « fais vibrer au clic », « commente », « corrige l'avertissement », « explique l'architecture »)."
 ---
 
 # Développement Android (Kotlin, Jetpack Compose)

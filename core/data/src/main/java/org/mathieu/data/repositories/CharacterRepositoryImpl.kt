@@ -14,6 +14,7 @@ import org.mathieu.data.local.objects.toRealmObject
 import org.mathieu.data.remote.CharacterApi
 import org.mathieu.data.remote.responses.CharacterResponse
 import org.mathieu.domain.repositories.CharacterRepository
+import org.mathieu.domain.repositories.LocationRepository
 import org.mathieu.domain.models.character.Character
 
 private const val CHARACTER_PREFS = "character_repository_preferences"
@@ -23,17 +24,35 @@ private val Context.dataStore by preferencesDataStore(
     name = CHARACTER_PREFS
 )
 
+/**
+ * Donne les personnages en lisant Realm d'abord : l'API ne sert qu'à charger la page suivante
+ * ou un personnage jamais enregistré.
+ *
+ * @param context sert à ouvrir le DataStore qui retient la prochaine page à charger.
+ * @param characterApi service distant des personnages.
+ * @param characterLocal accès aux personnages enregistrés dans Realm.
+ * @param locationRepository fournit le dernier lieu connu de chaque personnage, la table des personnages
+ * n'en gardant que l'identifiant.
+ */
 internal class CharacterRepositoryImpl(
     private val context: Context,
     private val characterApi: CharacterApi,
-    private val characterLocal: CharacterLocal
+    private val characterLocal: CharacterLocal,
+    private val locationRepository: LocationRepository
 ) : CharacterRepository {
 
     override suspend fun getCharacters(): Flow<List<Character>> =
         characterLocal
             .getCharacters()
-            .mapElement(transform = CharacterObject::toModel)
-            .also { if (it.first().isEmpty()) fetchNext() }
+            .also {
+                if (it.first().isEmpty()) {
+                    // Une base vide (premier lancement, ou Realm effacé par un changement de schéma) doit repartir
+                    // de la page 1 : sinon la page suivante gardée dans le DataStore ferait sauter les premières.
+                    context.dataStore.edit { prefs -> prefs.remove(nextPage) }
+                    fetchNext()
+                }
+            }
+            .mapElement { it.toModelWithLocation() }
 
 
     /**
@@ -85,24 +104,52 @@ internal class CharacterRepositoryImpl(
      * @throws Exception If the character cannot be found both locally and via the API.
      */
     override suspend fun getCharacter(id: Int): Character =
-        characterLocal.getCharacter(id)?.toModel()
+        characterLocal.getCharacter(id)?.toModelWithLocation()
             ?: characterApi.getCharacter(id = id)?.let { response ->
                 val obj = response.toRealmObject()
                 characterLocal.insert(obj)
-                obj.toModel()
+                obj.toModelWithLocation()
             }
             ?: throw Exception("Character not found.")
 
+    /**
+     * Mappe le personnage en chargeant son dernier lieu connu, que [LocationRepository] lit en base d'abord.
+     *
+     * Coût accepté : au premier affichage d'une page, un appel réseau par lieu encore inconnu ; ensuite Realm
+     * sert de cache et plus aucun appel n'est fait. Une erreur réseau remonte au lieu de donner `null`,
+     * car `null` veut déjà dire « lieu inconnu » : l'écran afficherait sinon une information fausse.
+     *
+     * @receiver le personnage lu en base.
+     * @return le [Character], avec `location` à `null` quand l'API ne connaît pas ce lieu (identifiant -1).
+     */
+    private suspend fun CharacterObject.toModelWithLocation(): Character = toModel(
+        location = if (locationId == -1) null else locationRepository.getLocationPreview(locationId)
+    )
 
 }
 
 
+/**
+ * Transforme un échec en `null`, pour les conversions où une valeur inconnue a déjà un repli
+ * (par exemple un statut que l'enum ne connaît pas devient `Unknown`).
+ *
+ * @param block calcul qui peut échouer.
+ * @return le résultat de [block], ou `null` s'il a levé une exception.
+ */
 fun <T> tryOrNull(block: () -> T) = try {
     block()
 } catch (_: Exception) {
     null
 }
 
+/**
+ * Applique [transform] à chaque élément de chaque liste émise, pour mapper un flux d'objets Realm
+ * en flux de modèles sans écrire deux `map` imbriqués à chaque fois.
+ *
+ * @receiver flux de listes à transformer.
+ * @param transform conversion d'un élément, qui peut suspendre (par exemple pour charger un lieu).
+ * @return un flux qui émet les listes transformées.
+ */
 inline fun <T, R> Flow<List<T>>.mapElement(crossinline transform: suspend (value: T) -> R): Flow<List<R>> =
     this.map { list ->
         list.map { element -> transform(element) }
