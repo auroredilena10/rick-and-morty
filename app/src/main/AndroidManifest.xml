@@ -2,9 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Permission normale : Ktor interroge l'API Rick et Morty, aucune demande à l'utilisateur. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--
+        CleanRmApiApplication démarre Koin avant toute activité, pour que les ViewModels trouvent leurs dépendances.
+        Les fichiers de règles de sauvegarde sont encore les modèles vides d'Android Studio : tout est sauvegardé par défaut.
+    -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -16,6 +20,10 @@
         android:theme="@style/Theme.Projet2"
         android:name="org.mathieu.cleanrmapi.CleanRmApiApplication"
         tools:targetApi="31">
+        <!--
+            Single Activity : tous les écrans sont des destinations du NavHost de cette activité.
+            exported="true" car c'est le point d'entrée du lanceur (MAIN / LAUNCHER).
+        -->
         <activity
             android:name="org.mathieu.cleanrmapi.MainActivity"
             android:exported="true"

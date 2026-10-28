@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,6 +40,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import org.mathieu.domain.models.character.Character
 import org.mathieu.ui.Destination
+import org.mathieu.ui.R
 import org.mathieu.ui.navigate
 import org.mathieu.ui.theme.Purple40
 
@@ -77,7 +79,7 @@ private fun CharactersContent(
             .background(Purple40)
             .padding(16.dp)
             .fillMaxWidth(),
-        text = "Characters",
+        text = stringResource(R.string.characters_title),
         textAlign = TextAlign.Center,
         color = Color.White,
         fontSize = 16.sp,
@@ -92,10 +94,10 @@ private fun CharactersContent(
         contentAlignment = Alignment.Center
     ) {
         AnimatedContent(targetState = state.error != null, label = "") {
-            state.error?.let { error ->
+            state.error?.let {
                 Text(
                     modifier = Modifier.padding(16.dp),
-                    text = error,
+                    text = stringResource(R.string.characters_error),
                     textAlign = TextAlign.Center,
                     color = Purple40,
                     fontSize = 32.sp,

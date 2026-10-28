@@ -1,8 +1,11 @@
+// region Plugins
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }
+// endregion
 
+// region Android
 val compileVersion: String by project
 val minVersion: String by project
 
@@ -31,14 +34,18 @@ android {
     }
 
 }
+// endregion
 
+// region Dépendances
 val koinVersion: String by project
+val coreKtxVersion: String by project
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-ktx:$coreKtxVersion")
 
     //Koin
     implementation( "io.insert-koin:koin-androidx-compose:$koinVersion")
     implementation("io.insert-koin:koin-android:$koinVersion")
 }
+// endregion

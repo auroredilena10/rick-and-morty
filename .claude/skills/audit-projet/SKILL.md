@@ -24,7 +24,7 @@ La référence est la **grille d'évaluation** : [references/grille.md](referenc
 ## Écarts fréquents
 
 - **Koin** est obligatoire, **Hilt et Dagger sont interdits** : une annotation `@Inject` ou `hiltViewModel()` est un écart net.
-- **MVI** est obligatoire, sous la forme du projet : un écran sans `Store`/`StoreAction`, un composant qui navigue ou décide pour l'application, ou un mécanisme parallèle est un écart net.
+- **MVI** est obligatoire, sous la forme du projet : un écran qui appelle le Repository sans passer par son ViewModel (`handleAction`, `updateState`, `sendEvent`), un composable qui navigue ou décide pour l'application, ou un mécanisme parallèle est un écart net.
 - **Erreur ou avertissement** dans le Manifest, Gradle ou la compilation : exigence non remplie, même s'il est « inoffensif ». L'audit n'est conforme qu'avec zéro erreur et zéro avertissement.
 - **Un seul texte en dur**, même dans un ViewModel, suffit à contredire « utilisation systématique des ressources ».
 - **KDoc sans balise** : ne vaut pas « block tags pertinents ».

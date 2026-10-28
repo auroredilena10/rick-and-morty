@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,11 +37,13 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
+import org.mathieu.ui.R
 import org.mathieu.ui.composables.PreviewContent
 
 private typealias UIState = CharacterDetailsState
@@ -53,7 +56,9 @@ fun CharacterDetailsScreen(
     val viewModel: CharacterDetailsViewModel = viewModel()
     val state by viewModel.state.collectAsState()
 
-    viewModel.init(characterId = id)
+    // Cycle de vie : LaunchedEffect(id) ne lance le chargement qu'à l'entrée de l'écran dans la composition,
+    // ou si l'identifiant change, au lieu de le relancer à chaque recomposition provoquée par le nouvel état.
+    LaunchedEffect(id) { viewModel.init(characterId = id) }
 
     CharacterDetailsContent(
         state = state,
@@ -81,7 +86,7 @@ private fun CharacterDetailsContent(
                 .padding(16.dp)
                 .clickable(onClick = onClickBack),
             imageVector = Icons.Default.ArrowBack,
-            contentDescription = "",
+            contentDescription = stringResource(R.string.character_details_back),
             colorFilter = ColorFilter.tint(Color.White)
         )
 
@@ -98,10 +103,10 @@ private fun CharacterDetailsContent(
         .fillMaxSize()
         .padding(paddingValues), contentAlignment = Alignment.Center) {
         AnimatedContent(targetState = state.error != null, label = "") {
-            state.error?.let { error ->
+            state.error?.let {
                 Text(
                     modifier = Modifier.padding(16.dp),
-                    text = error,
+                    text = stringResource(R.string.character_details_error),
                     textAlign = TextAlign.Center,
                     color = org.mathieu.ui.theme.Purple40,
                     fontSize = 32.sp,

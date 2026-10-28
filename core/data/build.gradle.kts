@@ -1,10 +1,13 @@
+// region Plugins
 plugins {
     id("com.android.library")
     id("io.realm.kotlin")
     id("org.jetbrains.kotlin.android")
     kotlin("plugin.serialization")
 }
+// endregion
 
+// region Android
 val compileVersion: String by project
 val minVersion: String by project
 
@@ -33,17 +36,21 @@ android {
     }
 
 }
+// endregion
 
+// region Dépendances
 val koinVersion: String by project
+val coreKtxVersion: String by project
+val datastoreVersion: String by project
 val ktorVersion: String by project
 val realmVersion: String by project
 
 dependencies {
 
     //Android
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("androidx.datastore:datastore:1.0.0")
+    implementation("androidx.core:core-ktx:$coreKtxVersion")
+    implementation("androidx.datastore:datastore-preferences:$datastoreVersion")
+    implementation("androidx.datastore:datastore:$datastoreVersion")
 
     //Projects
     implementation(project(":core:domain"))
@@ -61,3 +68,4 @@ dependencies {
     //Realm
     implementation("io.realm.kotlin:library-base:$realmVersion")
 }
+// endregion

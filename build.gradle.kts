@@ -1,4 +1,5 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+// region Plugins
 plugins {
     id("com.android.application") version "8.1.4" apply false
     id("org.jetbrains.kotlin.android") version "1.8.10" apply false
@@ -7,3 +8,4 @@ plugins {
     kotlin("plugin.serialization") version "1.8.10"
     id("com.android.library") version "8.1.4" apply false
 }
+// endregion
