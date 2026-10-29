@@ -1,9 +1,24 @@
-// region Dépôts des plugins
+// region Plugins : dépôts et versions
 pluginManagement {
     repositories {
         google()
         mavenCentral()
         gradlePluginPortal()
+    }
+
+    // Les versions viennent de gradle.properties, seul endroit du projet où figure un numéro de version ;
+    // les build.gradle.kts appliquent ensuite les plugins sans en répéter aucun.
+    val agpVersion: String by settings
+    val kotlinVersion: String by settings
+    val realmVersion: String by settings
+
+    plugins {
+        id("com.android.application") version agpVersion
+        id("com.android.library") version agpVersion
+        id("org.jetbrains.kotlin.android") version kotlinVersion
+        id("org.jetbrains.kotlin.jvm") version kotlinVersion
+        id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
+        id("io.realm.kotlin") version realmVersion
     }
 }
 // endregion

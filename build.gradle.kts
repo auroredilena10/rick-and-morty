@@ -1,11 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 // region Plugins
+// Versions déclarées dans le pluginManagement de settings.gradle.kts, à partir de gradle.properties.
 plugins {
-    id("com.android.application") version "8.1.4" apply false
-    id("org.jetbrains.kotlin.android") version "1.8.10" apply false
-    id("io.realm.kotlin") version "1.11.0" apply false
-    kotlin("jvm") version "1.8.0"
-    kotlin("plugin.serialization") version "1.8.10"
-    id("com.android.library") version "8.1.4" apply false
+    id("com.android.application") apply false
+    id("org.jetbrains.kotlin.android") apply false
+    id("io.realm.kotlin") apply false
+    kotlin("jvm")
+    kotlin("plugin.serialization")
+    id("com.android.library") apply false
 }
 // endregion
