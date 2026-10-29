@@ -6,8 +6,8 @@ pluginManagement {
         gradlePluginPortal()
     }
 
-    // Les versions viennent de gradle.properties, seul endroit du projet où figure un numéro de version ;
-    // les build.gradle.kts appliquent ensuite les plugins sans en répéter aucun.
+    // Les versions des plugins sont lues dans gradle.properties, le seul fichier du projet avec des numéros de version.
+    // Les build.gradle.kts appliquent ensuite les plugins sans répéter la version.
     val agpVersion: String by settings
     val kotlinVersion: String by settings
     val realmVersion: String by settings
@@ -24,11 +24,11 @@ pluginManagement {
 // endregion
 
 // region Dépôts des dépendances
-// Gradle 8.0 marque encore cette API comme expérimentale, alors qu'elle vient du modèle de projet d'Android Studio :
-// l'avertissement est masqué ici seulement.
+// Gradle 8.0 dit que cette API est encore expérimentale, alors que c'est le modèle de projet d'Android Studio
+// qui l'utilise. On masque l'avertissement seulement sur ce bloc.
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
-    // Les dépôts ne sont déclarés qu'ici : un module qui en ajouterait un ferait échouer le build.
+    // Les dépôts sont déclarés ici et nulle part ailleurs : un module qui en ajoute un fait échouer le build.
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
@@ -40,15 +40,15 @@ dependencyResolutionManagement {
 // region Modules
 rootProject.name = "Clean RmApi + MVI"
 
-// Point d'entrée : démarre Koin et porte le NavHost.
+// Le point d'entrée : il démarre Koin et contient le NavHost.
 include(":app")
 
-// Couches partagées : le Domain au centre, Data et UI qui en dépendent.
+// Les couches partagées : le Domain au centre, Data et UI dépendent de lui.
 include(":core:data")
 include(":core:domain")
 include(":core:ui")
 
-// Une feature par sujet ; aucune ne dépend d'une autre, ni de core:data.
+// Une feature par sujet. Aucune ne dépend d'une autre feature, ni de core:data.
 include(":features:characters")
 include(":features:locations")
 // endregion

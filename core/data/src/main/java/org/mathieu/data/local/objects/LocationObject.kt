@@ -12,10 +12,11 @@ import org.mathieu.domain.models.location.Location
 import org.mathieu.domain.models.location.LocationPreview
 
 /**
- * Lieu enregistré dans Realm. Les résidents ne sont gardés que par identifiant : les personnages
- * ont déjà leur propre table, les recopier ici créerait deux versions d'une même donnée.
+ * L'Entity d'un lieu : la forme d'une ligne de la table des lieux dans Realm.
+ * On ne garde que les id des résidents : les personnages ont déjà leur table, les recopier ici
+ * ferait deux versions de la même donnée.
  *
- * @property id identifiant unique du lieu, le même que celui de l'API.
+ * @property id identifiant du lieu, le même que sur l'API.
  * @property name nom du lieu.
  * @property type catégorie du lieu.
  * @property dimension dimension dans laquelle se trouve le lieu.
@@ -32,8 +33,8 @@ internal class LocationObject : RealmObject {
 
 
 /**
- * Transforme la réponse de l'API en objet Realm prêt à être inséré.
- * L'API ne donne que l'URL de chaque résident : on n'en garde que l'identifiant.
+ * Mapper DTO → Entity : transforme la réponse de l'API en objet Realm, prêt à être inséré.
+ * L'API donne une URL par résident, on n'en garde que l'id.
  *
  * @receiver la réponse reçue pour un lieu.
  * @return le [LocationObject] correspondant.
@@ -49,8 +50,10 @@ internal fun LocationResponse.toRealmObject() = LocationObject().also { obj ->
 }
 
 /**
+ * Mapper Entity → Domain, version light.
+ *
  * @receiver le lieu lu en base.
- * @return la version légère du lieu, sans ses résidents.
+ * @return le [LocationPreview] du lieu, sans ses résidents.
  */
 internal fun LocationObject.toPreview() = LocationPreview(
     id = id,
@@ -60,9 +63,12 @@ internal fun LocationObject.toPreview() = LocationPreview(
 )
 
 /**
+ * Mapper Entity → Domain, version complète. Les résidents arrivent déjà chargés,
+ * parce que l'objet Realm ne connaît que leurs id.
+ *
  * @receiver le lieu lu en base.
- * @param residents personnages déjà chargés à partir de [LocationObject.residentIds].
- * @return le [Location] complet.
+ * @param residents personnages chargés à partir de [LocationObject.residentIds].
+ * @return la [Location] complète.
  */
 internal fun LocationObject.toModel(residents: List<Character>) = Location(
     id = id,

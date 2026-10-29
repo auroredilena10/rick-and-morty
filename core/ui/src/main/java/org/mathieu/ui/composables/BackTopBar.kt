@@ -24,11 +24,11 @@ import org.mathieu.ui.R
 import org.mathieu.ui.theme.Purple40
 
 /**
- * Barre du haut des écrans de détail : une flèche de retour et un titre.
- * Partagée pour que tous les écrans de détail aient la même barre, sans en recopier le code.
+ * La barre du haut des écrans de détail : une flèche de retour et un titre.
+ * Elle est partagée pour que tous les écrans de détail aient la même, sans recopier le code.
  *
- * @param title texte affiché à côté de la flèche, en général le nom de ce que montre l'écran.
- * @param onClickBack appelé au clic sur la flèche ; c'est l'écran qui décide où revenir.
+ * @param title le texte à côté de la flèche, en général le nom de ce que montre l'écran.
+ * @param onClickBack appelé au clic sur la flèche ; c'est l'écran qui décide où on revient.
  */
 @Composable
 fun BackTopBar(

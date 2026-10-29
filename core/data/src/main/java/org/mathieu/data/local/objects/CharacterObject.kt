@@ -44,8 +44,8 @@ internal class CharacterObject: RealmObject {
 
 
 /**
- * Transforme la réponse de l'API en objet Realm prêt à être inséré.
- * Les lieux ne sont gardés que par nom et identifiant : leur détail vit dans la table des lieux.
+ * Mapper DTO → Entity : transforme la réponse de l'API en objet Realm, prêt à être inséré.
+ * Pour les lieux, on ne garde que le nom et l'id : le détail est dans la table des lieux.
  *
  * @receiver la réponse reçue pour un personnage.
  * @return le [CharacterObject] correspondant.
@@ -66,8 +66,10 @@ internal fun CharacterResponse.toRealmObject() = CharacterObject().also { obj ->
 }
 
 /**
+ * Mapper Entity → Domain.
+ *
  * @receiver le personnage lu en base.
- * @param location dernier lieu connu, chargé à part car la table des personnages n'en garde que l'identifiant.
+ * @param location dernier lieu connu, chargé à part parce que la table des personnages n'en garde que l'id.
  * @return le [Character] complet.
  */
 internal fun CharacterObject.toModel(location: LocationPreview?) = Character(

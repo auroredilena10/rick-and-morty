@@ -16,14 +16,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Carte qui présente un lieu par son nom et son type.
- * Partagée dans `core:ui` parce que le détail d'un personnage et le détail d'un lieu l'affichent.
- * Elle signale seulement le clic : c'est l'écran qui décide de ce qu'il veut dire (naviguer, vibrer, ou rien).
+ * La carte d'un lieu, avec son nom et son type.
+ * Elle est dans `core:ui` parce que le détail d'un personnage et le détail d'un lieu l'affichent tous les deux.
+ * Elle prévient juste qu'on a cliqué : c'est l'écran qui décide quoi faire (naviguer, vibrer, ou rien).
  *
- * @param name nom du lieu.
- * @param type catégorie du lieu (planète, station spatiale…).
- * @param modifier placement décidé par l'écran.
- * @param onClick appelé au clic ; `null` rend la carte non cliquable, par exemple quand on est déjà sur ce lieu.
+ * @param name le nom du lieu.
+ * @param type le type du lieu (planète, station spatiale…).
+ * @param modifier ce que l'écran veut ajouter, par exemple une marge.
+ * @param onClick appelé au clic ; avec `null`, la carte n'est pas cliquable (quand on est déjà sur ce lieu).
  */
 @Composable
 fun LocationCard(
@@ -34,9 +34,10 @@ fun LocationCard(
 ) = Column(
     modifier = modifier
         .shadow(5.dp)
-        // Couleurs du thème et non fixes, pour rester lisible en mode clair comme en mode sombre.
+        // Couleurs du thème et pas fixes, pour être lisible en mode clair comme en mode sombre.
         .background(MaterialTheme.colorScheme.surface)
         .fillMaxWidth()
+        // On n'ajoute le clic que s'il y a un onClick ; sinon `Modifier` tout seul n'ajoute rien.
         .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
         .padding(horizontal = 16.dp, vertical = 12.dp)
 ) {

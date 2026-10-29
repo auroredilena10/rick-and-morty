@@ -4,9 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import org.mathieu.domain.models.character.Character
 
 /**
- * Contrat pour obtenir les personnages : le Domain dit ce dont l'application a besoin,
- * la couche Data décide d'où ça vient. Les ViewModels ne dépendent que de cette interface,
- * ce qui permet de changer de stockage ou de la remplacer par une fausse implémentation sans les toucher.
+ * Le contrat pour récupérer les personnages. Le Domain dit ce qu'il veut, la couche Data décide d'où ça vient.
+ * Les ViewModels ne connaissent que cette interface : on peut changer la base ou l'API sans toucher à l'UI.
  */
 interface CharacterRepository {
     /**

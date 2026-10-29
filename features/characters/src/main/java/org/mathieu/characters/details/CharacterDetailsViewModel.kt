@@ -9,7 +9,7 @@ import org.mathieu.domain.repositories.CharacterRepository
 import org.mathieu.ui.Destination
 import org.mathieu.ui.ViewModel
 
-/** Assez long pour être senti, assez court pour ne pas gêner : c'est une confirmation, pas une alerte. */
+/** 50 ms : assez pour sentir la vibration, assez court pour ne pas gêner. C'est une confirmation, pas une alerte. */
 private const val LOCATION_CLICK_VIBRATION_MS = 50L
 
 /** Ce que l'utilisateur peut faire sur l'écran de détail d'un personnage. */
@@ -22,8 +22,8 @@ sealed interface CharacterDetailsAction {
 }
 
 /**
- * ViewModel de [CharacterDetailsScreen] : charge le personnage et décide de ce que veut dire chaque action.
- * C'est lui, et non l'écran, qui fait vibrer : l'UI ne connaît que l'action, jamais le matériel.
+ * Le ViewModel de [CharacterDetailsScreen] : il charge le personnage et décide quoi faire pour chaque action.
+ * C'est lui qui fait vibrer, pas l'écran : l'UI connaît l'action, jamais le matériel.
  *
  * @param application nécessaire à `AndroidViewModel`, fournie par `viewModel()`.
  */
@@ -64,14 +64,14 @@ class CharacterDetailsViewModel(application: Application) : ViewModel<CharacterD
     }
 
 
-    /** Vibre d'abord pour confirmer le toucher tout de suite, puis demande à l'écran d'ouvrir le lieu. */
+    /** Vibre d'abord, pour que le clic soit senti tout de suite, puis demande à l'écran d'ouvrir le lieu. */
     private fun selectedLocation() {
         val location = state.value.location ?: return
         vibrationManager.vibrate(LOCATION_CLICK_VIBRATION_MS)
         sendEvent(Destination.LocationDetails(location.id.toString()))
     }
 
-    /** Confie l'image à une autre application plutôt que de créer un écran de zoom qui n'apporterait rien de plus. */
+    /** Ouvre l'image dans une autre app (le navigateur) : pas besoin de coder un écran de zoom pour ça. */
     private fun selectedAvatar() {
         val avatarUrl = state.value.avatarUrl
         if (avatarUrl.isNotBlank()) linkManager.open(avatarUrl)
@@ -86,7 +86,7 @@ class CharacterDetailsViewModel(application: Application) : ViewModel<CharacterD
  * @property isLoading `true` tant que le personnage n'est pas chargé.
  * @property avatarUrl adresse de l'image du personnage.
  * @property name nom du personnage.
- * @property location dernier lieu connu, affiché en carte ; `null` quand il est inconnu, la carte est alors cachée.
+ * @property location le dernier lieu connu, affiché dans une carte ; `null` s'il est inconnu, et la carte n'apparaît pas.
  * @property error message d'erreur, `null` si tout va bien.
  */
 data class CharacterDetailsState(

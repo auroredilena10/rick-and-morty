@@ -20,14 +20,14 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 
 /**
- * Ligne qui présente un personnage par son avatar et son nom.
- * Partagée dans `core:ui` parce que la liste des personnages et la liste des résidents d'un lieu l'affichent,
- * et qu'une feature ne peut pas utiliser le code d'une autre. Elle reçoit des types simples, pas un `Character`,
- * pour rester indépendante du Domain.
+ * Une ligne avec l'avatar et le nom d'un personnage.
+ * Elle est dans `core:ui` parce que deux features l'affichent (la liste des personnages et les résidents d'un lieu),
+ * et qu'une feature ne peut pas utiliser le code d'une autre. Elle prend des `String` et pas un `Character`,
+ * pour ne pas dépendre du Domain.
  *
- * @param name nom affiché du personnage.
- * @param avatarUrl adresse de l'image du personnage.
- * @param modifier placement et comportement décidés par l'écran, par exemple le clic.
+ * @param name le nom du personnage.
+ * @param avatarUrl l'adresse de son image.
+ * @param modifier ce que l'écran veut ajouter, par exemple le clic.
  */
 @Composable
 fun CharacterCard(
@@ -37,7 +37,7 @@ fun CharacterCard(
 ) = Row(
     modifier = modifier
         .shadow(5.dp)
-        // Couleur du thème et non blanc fixe : en mode sombre, le texte devient clair et resterait illisible sur du blanc.
+        // Couleur du thème et pas du blanc : en mode sombre le texte devient clair, il serait illisible sur du blanc.
         .background(MaterialTheme.colorScheme.surface)
         .fillMaxWidth()
         .padding(horizontal = 16.dp, vertical = 12.dp),

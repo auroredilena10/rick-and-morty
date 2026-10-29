@@ -28,8 +28,9 @@ val dataModule = module {
 
     single { org.mathieu.data.remote.CharacterApi(get()) }
 
-    // Chaque repository est déclaré sous son interface du Domain : les ViewModels demandent `CharacterRepository`
-    // et ne voient jamais l'implémentation, qui reste `internal` à ce module.
+    // On déclare le repository avec le type de son interface : quand un ViewModel demande `CharacterRepository`,
+    // Koin lui donne l'implémentation, que le ViewModel ne voit jamais (elle est `internal`).
+    // Chaque get() est rempli par Koin avec ce qui est déclaré plus haut (Context, Api, Local...).
     single<CharacterRepository> {
         CharacterRepositoryImpl(
             get(),
@@ -43,8 +44,8 @@ val dataModule = module {
 
     single { org.mathieu.data.remote.LocationApi(get()) }
 
-    // Dépendance à sens unique : CharacterRepositoryImpl reçoit LocationRepository, jamais l'inverse,
-    // sinon Koin tournerait en rond pour construire l'un ou l'autre.
+    // CharacterRepositoryImpl reçoit LocationRepository, mais jamais l'inverse :
+    // si chacun avait besoin de l'autre, Koin tournerait en rond pour les créer.
     single<LocationRepository> {
         LocationRepositoryImpl(
             get(),
@@ -54,8 +55,8 @@ val dataModule = module {
         )
     }
 
-    // Comme les repositories, chaque Manager est déclaré sous son interface du Domain ; le get() fournit
-    // le Context de l'application, enregistré par androidContext() au démarrage de Koin.
+    // Les Managers aussi sont déclarés avec leur interface. Ici le get() donne le Context de l'application,
+    // celui enregistré par androidContext() au démarrage de Koin (CleanRmApiApplication).
     single<VibrationManager> { VibrationManagerImpl(get()) }
 
     single<LinkManager> { LinkManagerImpl(get()) }

@@ -7,17 +7,17 @@ import io.ktor.http.HttpStatusCode
 import org.mathieu.data.remote.responses.LocationResponse
 
 /**
- * Service distant des lieux : il ne fait que l'appel HTTP et rend la forme brute du JSON ;
- * le choix entre base et réseau appartient au repository.
+ * Le Service des lieux : il fait les appels HTTP et renvoie des DTO, qui collent au JSON de l'API.
+ * Il ne connaît pas le Domain, et ce n'est pas lui qui choisit entre la base et l'API : c'est le repository.
  *
  * @param client client Ktor partagé, déjà configuré avec l'URL de l'API.
  */
 internal class LocationApi(private val client: HttpClient) {
 
     /**
-     * Demande au service les détails d'un lieu.
+     * Demande un lieu à l'API (`GET location/{id}`).
      *
-     * @param id identifiant unique du lieu.
+     * @param id identifiant du lieu.
      * @return le [LocationResponse] du lieu, avec les URL de ses résidents.
      * @throws HttpException si la requête échoue ou si le code n'est pas [HttpStatusCode.OK].
      */

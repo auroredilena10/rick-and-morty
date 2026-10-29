@@ -7,45 +7,46 @@ import kotlinx.coroutines.flow.map
 import org.mathieu.data.local.objects.CharacterObject
 
 /**
- * Requêtes Realm sur les personnages : c'est le seul endroit de la couche Data qui connaît leur table.
+ * Le DAO des personnages : il fait les requêtes Realm sur leur table, et personne d'autre n'y touche.
  *
  * @param database base Realm partagée de l'application.
  */
 internal class CharacterLocal(private val database: RealmDatabase) {
 
     /**
-     * Observe la table plutôt que de la lire une fois : chaque page insérée par la pagination
-     * réémet la liste, et l'écran se met à jour sans redemander.
+     * Observe la table au lieu de la lire une seule fois : à chaque page enregistrée, la liste est
+     * renvoyée et l'écran se met à jour tout seul.
      *
-     * @return un [Flow] qui émet tous les personnages enregistrés, à chaque changement de la table.
+     * @return un [Flow] qui renvoie tous les personnages en base, à chaque changement de la table.
      */
     suspend fun getCharacters(): Flow<List<CharacterObject>> = database.use {
         query<CharacterObject>().find().asFlow().map { it.list }
     }
 
     /**
-     * @param id identifiant unique du personnage.
-     * @return le [CharacterObject] enregistré, ou `null` s'il n'a jamais été chargé.
+     * @param id identifiant du personnage.
+     * @return le [CharacterObject] en base, ou `null` s'il n'a jamais été chargé.
      */
     suspend fun getCharacter(id: Int): CharacterObject? = database.use {
         query<CharacterObject>("id == $id").first().find()
     }
 
     /**
-     * Lit plusieurs personnages en une seule requête, plutôt qu'une par identifiant :
-     * un lieu peut avoir une centaine de résidents.
+     * Lit plusieurs personnages en une seule requête au lieu d'une par id :
+     * la Citadelle a plus de cent résidents.
      *
      * @param ids identifiants des personnages voulus.
-     * @return les [CharacterObject] déjà enregistrés parmi [ids] ; ceux jamais chargés sont absents.
+     * @return les [CharacterObject] déjà en base parmi [ids] ; ceux jamais chargés ne sont pas dans la liste.
      */
     suspend fun getCharacters(ids: List<Int>): List<CharacterObject> =
         if (ids.isEmpty()) emptyList()
-        // La syntaxe {1, 2, 3} est la liste littérale du langage de requête Realm ; vide, elle serait invalide.
+        // Donne par exemple "id IN {1, 2, 3}", la façon d'écrire une liste dans une requête Realm.
+        // Une liste vide ferait planter la requête, d'où le test juste au-dessus.
         else database.use { query<CharacterObject>("id IN {${ids.joinToString()}}").find() }
 
     /**
-     * Enregistre tous les personnages dans une seule transaction : une transaction par personnage
-     * ralentissait l'enregistrement d'une page ou des résidents d'un lieu.
+     * Enregistre tous les personnages dans une seule transaction. Avant, il y en avait une par personnage,
+     * et l'écran d'un lieu avec beaucoup de résidents mettait plusieurs secondes à s'afficher.
      *
      * @param characters personnages à enregistrer, par exemple une page entière de l'API.
      */
@@ -57,7 +58,7 @@ internal class CharacterLocal(private val database: RealmDatabase) {
     }
 
     /**
-     * Enregistre le personnage, ou remplace la version déjà en base pour garder les données de l'API à jour.
+     * Enregistre le personnage. S'il existe déjà, il est remplacé (UpdatePolicy.ALL), pour garder la version de l'API.
      *
      * @param character personnage à enregistrer.
      */

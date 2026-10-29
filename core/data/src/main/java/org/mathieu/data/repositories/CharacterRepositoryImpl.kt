@@ -25,14 +25,14 @@ private val Context.dataStore by preferencesDataStore(
 )
 
 /**
- * Donne les personnages en lisant Realm d'abord : l'API ne sert qu'à charger la page suivante
- * ou un personnage jamais enregistré.
+ * Remplit le contrat [CharacterRepository] : il lit Realm d'abord, et l'API ne sert qu'à charger
+ * la page suivante ou un personnage jamais enregistré.
  *
  * @param context sert à ouvrir le DataStore qui retient la prochaine page à charger.
- * @param characterApi service distant des personnages.
- * @param characterLocal accès aux personnages enregistrés dans Realm.
- * @param locationRepository fournit le dernier lieu connu de chaque personnage, la table des personnages
- * n'en gardant que l'identifiant.
+ * @param characterApi Service des personnages.
+ * @param characterLocal DAO des personnages.
+ * @param locationRepository donne le dernier lieu connu de chaque personnage, parce que la table
+ * des personnages n'en garde que l'id.
  */
 internal class CharacterRepositoryImpl(
     private val context: Context,
@@ -46,8 +46,8 @@ internal class CharacterRepositoryImpl(
             .getCharacters()
             .also {
                 if (it.first().isEmpty()) {
-                    // Une base vide (premier lancement, ou Realm effacé par un changement de schéma) doit repartir
-                    // de la page 1 : sinon la page suivante gardée dans le DataStore ferait sauter les premières.
+                    // Base vide (premier lancement, ou Realm vidé par un changement de version) : on repart de la page 1.
+                    // Sinon le DataStore, qui n'est pas vidé avec Realm, ferait charger la page 2 et la 1 manquerait.
                     context.dataStore.edit { prefs -> prefs.remove(nextPage) }
                     fetchNext()
                 }
@@ -113,14 +113,15 @@ internal class CharacterRepositoryImpl(
             ?: throw Exception("Character not found.")
 
     /**
-     * Mappe le personnage en chargeant son dernier lieu connu, que [LocationRepository] lit en base d'abord.
+     * Mappe le personnage en ajoutant son dernier lieu connu, que [LocationRepository] cherche en base d'abord.
+     * La liste et le détail passent tous les deux par ici.
      *
-     * Coût accepté : au premier affichage d'une page, un appel réseau par lieu encore inconnu ; ensuite Realm
-     * sert de cache et plus aucun appel n'est fait. Une erreur réseau remonte au lieu de donner `null`,
-     * car `null` veut déjà dire « lieu inconnu » : l'écran afficherait sinon une information fausse.
+     * Ce que ça coûte : la première fois qu'une page s'affiche, un appel par lieu pas encore connu.
+     * Après, tout vient de Realm. Si le réseau plante, l'erreur remonte au lieu de mettre `null` :
+     * `null` veut déjà dire « lieu inconnu », l'écran afficherait une info fausse.
      *
      * @receiver le personnage lu en base.
-     * @return le [Character], avec `location` à `null` quand l'API ne connaît pas ce lieu (identifiant -1).
+     * @return le [Character], avec `location` à `null` si l'API ne connaît pas ce lieu (id -1).
      */
     private suspend fun CharacterObject.toModelWithLocation(): Character = toModel(
         location = if (locationId == -1) null else locationRepository.getLocationPreview(locationId)

@@ -34,10 +34,10 @@ import org.mathieu.ui.composables.PreviewContent
 private typealias UIState = LocationDetailsState
 
 /**
- * Écran de détail d'un lieu : il possède le ViewModel et lance le chargement du lieu demandé.
+ * L'écran de détail d'un lieu. Il a le ViewModel et lance le chargement du lieu demandé.
  *
- * @param navController contrôleur du `NavHost` de `MainActivity`, utilisé pour le retour.
- * @param id identifiant du lieu, lu dans les arguments de la destination.
+ * @param navController le contrôleur du `NavHost` de `MainActivity`, utilisé pour revenir en arrière.
+ * @param id l'id du lieu, lu dans les arguments de la destination.
  */
 @Composable
 fun LocationDetailsScreen(
@@ -47,8 +47,8 @@ fun LocationDetailsScreen(
     val viewModel: LocationDetailsViewModel = viewModel()
     val state by viewModel.state.collectAsState()
 
-    // Cycle de vie : LaunchedEffect(id) ne lance le chargement qu'à l'entrée de l'écran dans la composition,
-    // au lieu de le relancer à chaque recomposition provoquée par le nouvel état.
+    // Cycle de vie : LaunchedEffect(id) ne charge le lieu qu'en arrivant sur l'écran (ou si l'id change),
+    // pas à chaque recomposition. Sans ça, chaque nouvel état relancerait le chargement.
     LaunchedEffect(id) { viewModel.init(locationId = id) }
 
     LocationDetailsContent(
@@ -60,8 +60,8 @@ fun LocationDetailsScreen(
 
 
 /**
- * Affichage du détail d'un lieu, sans ViewModel. Contrairement aux autres écrans, il montre un indicateur
- * de chargement : les résidents peuvent demander un appel réseau, l'écran resterait sinon vide un moment.
+ * L'affichage du détail d'un lieu, sans ViewModel. Contrairement aux autres écrans, il a un indicateur
+ * de chargement : les résidents peuvent demander un appel réseau, et l'écran resterait vide un moment.
  *
  * @param state ce qu'il faut afficher.
  * @param onClickBack appelé au clic sur la flèche de retour.
@@ -80,6 +80,7 @@ private fun LocationDetailsContent(
             .padding(paddingValues),
         contentAlignment = Alignment.Center
     ) {
+        // Un seul affichage à la fois, dans cet ordre : chargement, puis erreur, puis le contenu.
         when {
             state.isLoading -> CircularProgressIndicator()
 
@@ -88,7 +89,7 @@ private fun LocationDetailsContent(
             else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
 
                 item {
-                    // Pas de onClick : on est déjà sur ce lieu, la carte ne sert qu'à le présenter.
+                    // Pas de onClick : on est déjà sur ce lieu, la carte sert juste à le présenter.
                     LocationCard(
                         modifier = Modifier.padding(8.dp),
                         name = state.name,
@@ -102,6 +103,7 @@ private fun LocationDetailsContent(
                     )
                 }
 
+                // Certains lieux n'ont aucun résident : on le dit, au lieu de laisser un titre sans rien dessous.
                 if (state.residents.isEmpty()) item {
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),

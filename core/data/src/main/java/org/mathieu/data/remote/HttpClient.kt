@@ -12,11 +12,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.*
 
 /**
- * Construit le client Ktor partagé par tous les services : URL de base, lecture du JSON, délais
- * et traduction des codes d'erreur sont réglés une fois ici au lieu d'être répétés dans chaque `XxxApi`.
+ * Crée le client Ktor utilisé par tous les Services. L'adresse de l'API, la lecture du JSON, les délais
+ * et les erreurs HTTP sont réglés une fois ici, au lieu d'être répétés dans chaque `XxxApi`.
  *
- * @param baseUrl adresse de l'API, ajoutée devant chaque chemin relatif (`character/1`).
- * @param engine moteur HTTP ; CIO par défaut, remplaçable par un moteur factice pour des tests.
+ * @param baseUrl adresse de l'API, ajoutée devant chaque chemin (`character/1`).
+ * @param engine moteur HTTP, CIO par défaut. On peut en passer un faux pour des tests.
  * @return le [HttpClient] prêt à l'emploi.
  */
 fun createHttpClient(
@@ -48,8 +48,8 @@ fun createHttpClient(
 }
 
 /**
- * Refuse toute réponse dont le code n'est pas attendu, pour qu'un 404 devienne une exception
- * au lieu d'un JSON d'erreur qu'on essaierait de lire comme une donnée.
+ * Refuse une réponse dont le code n'est pas celui attendu. Sans ça, un 404 renverrait un JSON d'erreur
+ * qu'on essaierait de lire comme un personnage.
  *
  * @receiver la réponse reçue.
  * @param codes codes HTTP acceptés.
@@ -62,9 +62,9 @@ fun HttpResponse.accept(vararg codes: HttpStatusCode) = when (status) {
 }
 
 /**
- * Erreurs réseau connues. Une classe scellée liste tous les cas possibles,
- * pour qu'un `when` sur ces erreurs n'en oublie aucun. Ce sont des classes et non des `object` :
- * une exception garde la trace de l'endroit où elle est lancée, il en faut donc une neuve à chaque fois.
+ * Les erreurs réseau qu'on connaît. `sealed` liste tous les cas, donc un `when` dessus n'en oublie aucun.
+ * Ce sont des `class` et pas des `object` : une exception retient l'endroit où elle a été lancée,
+ * il en faut une nouvelle à chaque fois.
  *
  * @property message description de l'erreur.
  */

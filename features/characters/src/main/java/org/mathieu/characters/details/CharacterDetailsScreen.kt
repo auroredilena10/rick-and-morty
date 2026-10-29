@@ -50,10 +50,10 @@ private typealias UIState = CharacterDetailsState
 private typealias UIAction = CharacterDetailsAction
 
 /**
- * Écran de détail d'un personnage : il possède le ViewModel, lui transmet les actions et navigue sur ses événements.
+ * L'écran de détail d'un personnage. Il a le ViewModel, lui envoie les actions et navigue quand il reçoit un événement.
  *
- * @param navController contrôleur du `NavHost` de `MainActivity`.
- * @param id identifiant du personnage, lu dans les arguments de la destination.
+ * @param navController le contrôleur du `NavHost` de `MainActivity`.
+ * @param id l'id du personnage, lu dans les arguments de la destination.
  */
 @Composable
 fun CharacterDetailsScreen(
@@ -67,8 +67,8 @@ fun CharacterDetailsScreen(
     // ou si l'identifiant change, au lieu de le relancer à chaque recomposition provoquée par le nouvel état.
     LaunchedEffect(id) { viewModel.init(characterId = id) }
 
-    // Cycle de vie : l'écoute est annulée quand l'écran quitte la composition, donc un événement envoyé
-    // après la fermeture de l'écran ne peut plus déclencher de navigation.
+    // Cycle de vie : cette écoute s'arrête toute seule quand on quitte l'écran. Un événement qui arriverait
+    // après ne peut donc plus faire naviguer depuis un écran fermé.
     LaunchedEffect(viewModel) {
         viewModel.events
             .onEach { event ->
@@ -87,12 +87,12 @@ fun CharacterDetailsScreen(
 
 
 /**
- * Affichage du détail d'un personnage, sans ViewModel : il ne reçoit que l'état et des callbacks,
- * ce qui permet de le prévisualiser avec n'importe quel état.
+ * L'affichage du détail d'un personnage, sans ViewModel : il reçoit juste l'état et des callbacks.
+ * Comme ça on peut le voir en Preview avec n'importe quel état.
  *
  * @param state ce qu'il faut afficher.
  * @param onClickBack appelé au clic sur la flèche de retour.
- * @param onAction reçoit les actions de l'utilisateur, à transmettre au ViewModel.
+ * @param onAction reçoit les actions de l'utilisateur, à envoyer au ViewModel.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -151,7 +151,7 @@ private fun CharacterDetailsContent(
                             .shadow(3.dp)
                             .clickable { onAction(CharacterDetailsAction.SelectedAvatar) },
                         model = state.avatarUrl,
-                        // Une image cliquable doit être décrite, sinon un lecteur d'écran n'annonce pas ce que fait le clic.
+                        // Une image cliquable a besoin d'une description : sinon un lecteur d'écran ne dit pas à quoi sert le clic.
                         contentDescription = stringResource(R.string.character_details_open_avatar)
                     )
 

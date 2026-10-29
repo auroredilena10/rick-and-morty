@@ -21,8 +21,8 @@ sealed class Destination(val route: String, val arguments: List<NamedNavArgument
             arguments = listOf(navArgument("characterId") { type = NavType.IntType })
         )
 
-    // Seul l'identifiant voyage dans la route : l'écran recharge le lieu par son repository,
-    // ce qui le garde valable même si Android recrée l'écran.
+    // Seul l'id passe dans la route ("locationDetail/3"), pas le lieu entier : l'écran recharge le lieu
+    // lui-même, donc il marche encore si Android recrée l'écran. "{locationId}" sert de modèle au NavHost.
     class LocationDetails(locationId: String = "{locationId}"):
         Destination(
             route = "locationDetail/$locationId",

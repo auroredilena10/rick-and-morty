@@ -5,7 +5,7 @@
     <!-- Permission normale : Ktor interroge l'API Rick et Morty, aucune demande à l'utilisateur. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Permission normale : VibrationManagerImpl fait vibrer l'appareil au clic sur la carte d'un lieu. Sans cette ligne, Android bloque l'appel. -->
+    <!-- Permission normale (pas de popup) : VibrationManagerImpl fait vibrer au clic sur la carte d'un lieu. Sans cette ligne, Android refuse la vibration. -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <!--

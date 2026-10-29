@@ -8,8 +8,8 @@ import android.os.VibratorManager
 import androidx.core.content.ContextCompat
 
 /**
- * Dit si l'application a le droit d'utiliser une permission, pour qu'un Manager vérifie lui-même
- * avant de toucher au matériel au lieu de planter.
+ * Dit si l'app a une permission. Le Manager vérifie lui-même avant de toucher au matériel :
+ * si la permission manque, il ne fait rien au lieu de planter.
  *
  * @receiver le Context qui interroge le système ; celui de l'application suffit.
  * @param permission la permission à vérifier, par exemple `Manifest.permission.VIBRATE`.
@@ -20,11 +20,11 @@ internal fun Context.hasPermission(permission: String): Boolean =
     ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
 
 /**
- * Donne le vibreur principal de l'appareil, en cachant le changement d'API d'Android 12 :
- * depuis, les vibreurs passent par [VibratorManager], qui peut en gérer plusieurs.
- * Le projet visant Android 9 au minimum, les deux chemins restent nécessaires.
+ * Donne le vibreur du téléphone. Depuis Android 12, on passe par [VibratorManager] (un téléphone peut avoir
+ * plusieurs vibreurs) ; avant, on demandait directement le [Vibrator]. L'app tourne dès Android 9,
+ * donc il faut garder les deux chemins : le `if` choisit selon la version du téléphone.
  *
- * @receiver n'importe quel [Context] ; celui de l'application suffit, le service ne dépend d'aucun écran.
+ * @receiver n'importe quel [Context] ; celui de l'application suffit, le vibreur ne dépend d'aucun écran.
  * @return le [Vibrator] par défaut de l'appareil.
  */
 internal fun Context.vibrator(): Vibrator =

@@ -15,16 +15,17 @@ import org.mathieu.domain.models.location.LocationPreview
 import org.mathieu.domain.repositories.LocationRepository
 
 /**
- * Lit les lieux en base d'abord et ne demande à l'API que ce qui n'a jamais été enregistré.
+ * Remplit le contrat [LocationRepository] : il cherche les lieux en base d'abord, et ne demande à l'API
+ * que ce qui n'a jamais été enregistré.
  *
- * Les résidents passent par [CharacterApi] et [CharacterLocal] plutôt que par `CharacterRepository` :
- * celui-ci dépend déjà de [LocationRepository] pour remplir `Character.location`, et Koin ne sait pas
- * résoudre deux classes qui ont besoin l'une de l'autre.
+ * Choix : les résidents passent par [CharacterApi] et [CharacterLocal], pas par `CharacterRepository`.
+ * `CharacterRepositoryImpl` a déjà besoin de [LocationRepository] pour remplir `Character.location`,
+ * et Koin ne sait pas créer deux classes qui ont besoin l'une de l'autre.
  *
- * @param locationApi service distant des lieux.
- * @param locationLocal accès aux lieux enregistrés dans Realm.
- * @param characterApi service distant des personnages, pour les résidents absents de la base.
- * @param characterLocal accès aux personnages enregistrés dans Realm.
+ * @param locationApi Service des lieux.
+ * @param locationLocal DAO des lieux.
+ * @param characterApi Service des personnages, pour les résidents pas encore en base.
+ * @param characterLocal DAO des personnages.
  */
 internal class LocationRepositoryImpl(
     private val locationApi: LocationApi,
@@ -34,12 +35,12 @@ internal class LocationRepositoryImpl(
 ) : LocationRepository {
 
     /**
-     * Donne le lieu complet. Chaque résident reçoit ce lieu comme dernier lieu connu :
-     * l'API définit justement les résidents comme les personnages vus en dernier ici.
+     * Donne le lieu complet. Pour chaque résident, son dernier lieu connu est ce lieu-ci : c'est la définition
+     * d'un résident dans l'API (un personnage vu ici en dernier). Ça évite de recharger le même lieu pour chacun.
      *
-     * @param id identifiant unique du lieu.
-     * @return le [Location] avec ses résidents.
-     * @throws Exception si le lieu est introuvable en base comme sur l'API.
+     * @param id identifiant du lieu.
+     * @return la [Location] avec ses résidents.
+     * @throws Exception si le lieu n'est ni en base ni sur l'API.
      */
     override suspend fun getLocation(id: Int): Location {
         val location = getLocationObject(id)
@@ -54,15 +55,17 @@ internal class LocationRepositoryImpl(
 
 
     /**
-     * Récupère le lieu en suivant ces étapes :
-     * 1. Le cherche en base.
-     * 2. S'il n'y est pas, le demande à l'API.
-     * 3. Si l'API le renvoie, l'enregistre en base avant de le rendre.
-     * 4. Sinon, lève une exception.
+     * Le fetch « local d'abord » d'un lieu :
+     * 1. On cherche en base.
+     * 2. Pas trouvé : on demande à l'API.
+     * 3. L'API le renvoie : on l'enregistre en base, puis on le rend.
+     * 4. Toujours rien : exception.
      *
-     * @param id identifiant unique du lieu.
-     * @return le [LocationObject] enregistré.
-     * @throws Exception si le lieu est introuvable en base comme sur l'API.
+     * Les deux fonctions publiques passent par ici, donc la logique n'est écrite qu'une fois.
+     *
+     * @param id identifiant du lieu.
+     * @return le [LocationObject] en base.
+     * @throws Exception si le lieu n'est ni en base ni sur l'API.
      */
     private suspend fun getLocationObject(id: Int): LocationObject =
         locationLocal.getLocation(id)
@@ -74,15 +77,16 @@ internal class LocationRepositoryImpl(
             ?: throw Exception("Location not found.")
 
     /**
-     * Lit les résidents déjà en base, puis demande tous les autres à l'API en un seul appel
-     * et les enregistre, pour que la prochaine ouverture du lieu se passe du réseau.
+     * Le même principe pour les résidents, mais en lot : ceux déjà en base d'abord, puis tous les autres
+     * en un seul appel à l'API. On les enregistre pour que la prochaine ouverture du lieu se passe du réseau.
      *
      * @param ids identifiants des résidents du lieu.
-     * @return les [CharacterObject] des résidents, triés par identifiant pour garder le même ordre
+     * @return les [CharacterObject] des résidents, triés par id pour avoir toujours le même ordre,
      * qu'ils viennent de la base ou de l'API.
      */
     private suspend fun getResidents(ids: List<Int>): List<CharacterObject> {
         val saved = characterLocal.getCharacters(ids)
+        // Les id qui ne sont pas encore en base : ce sont les seuls qu'on demande à l'API.
         val missingIds = ids - saved.map { it.id }.toSet()
 
         val fetched = if (missingIds.isEmpty()) emptyList()

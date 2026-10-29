@@ -9,8 +9,8 @@ import org.mathieu.data.remote.responses.CharacterResponse
 import org.mathieu.data.remote.responses.PaginatedResponse
 
 /**
- * Service distant des personnages : il ne fait que l'appel HTTP et rend la forme brute du JSON ;
- * le choix entre base et réseau appartient au repository.
+ * Le Service des personnages : il fait les appels HTTP et renvoie des DTO, qui collent au JSON de l'API.
+ * Il ne connaît pas le Domain, et ce n'est pas lui qui choisit entre la base et l'API : c'est le repository.
  *
  * @param client client Ktor partagé, déjà configuré avec l'URL de l'API.
  */
@@ -48,8 +48,8 @@ internal class CharacterApi(private val client: HttpClient) {
         .body()
 
     /**
-     * Demande plusieurs personnages en un seul appel, pour ne pas faire une requête par résident d'un lieu.
-     * Les crochets forcent l'API à répondre par une liste, même quand il n'y a qu'un seul identifiant.
+     * Demande plusieurs personnages en un seul appel (`GET character/[1,2,3]`), au lieu d'un appel par résident.
+     * Les crochets obligent l'API à répondre par une liste, même s'il n'y a qu'un seul id.
      *
      * @param ids identifiants des personnages voulus.
      * @return la liste des [CharacterResponse] trouvés.

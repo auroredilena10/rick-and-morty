@@ -16,17 +16,17 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
 /**
- * Base de tous les ViewModels d'écran : elle porte le flux MVI à sens unique.
- * L'écran lit [state] (ce qu'il affiche) et [events] (ce qu'il doit faire une seule fois, comme naviguer) ;
- * le ViewModel ne les modifie qu'à travers [updateState] et [sendEvent].
- * Hérite de `KoinComponent` pour que chaque ViewModel reçoive ses repositories et managers par `by inject()`.
+ * La base de tous les ViewModels d'écran. Elle met en place le MVI : les données vont dans un seul sens.
+ * L'écran lit [state] (ce qu'il affiche) et écoute [events] (ce qu'il doit faire une seule fois, comme naviguer).
+ * Le ViewModel ne les change qu'avec [updateState] et [sendEvent].
+ * Elle hérite de `KoinComponent` pour que chaque ViewModel récupère ses repositories et Managers avec `by inject()`.
  *
- * @param State type de l'état propre à l'écran, une `data class` immuable.
+ * @param State le type de l'état de l'écran, une `data class`.
  * @param initialState état affiché avant tout chargement.
  * @param application nécessaire à `AndroidViewModel`, fournie par `viewModel()`.
- * @property state état courant, observé par l'écran.
- * @property events événements ponctuels ; un canal plutôt qu'un état, pour qu'une navigation ne soit pas rejouée
- * quand l'écran se recompose.
+ * @property state l'état actuel, que l'écran observe.
+ * @property events les événements à faire une seule fois. C'est un `Channel` et pas un état : sinon une navigation
+ * serait refaite à chaque recomposition de l'écran.
  */
 open class ViewModel<State>(initialState: State, application: Application): AndroidViewModel(application),
     KoinComponent {
@@ -42,7 +42,7 @@ open class ViewModel<State>(initialState: State, application: Application): Andr
     /** This function is made as an extension because when we call it, it is yellow
      * and this is better for our UX
      *
-     * @param block calcule le nouvel état à partir de l'actuel, en général par `copy(...)`.
+     * @param block donne le nouvel état à partir de l'ancien, en général avec `copy(...)`.
      */
     protected fun ViewModel<State>.updateState(block: State.() -> State) {
         _state.update { block.invoke(it) }
@@ -51,7 +51,7 @@ open class ViewModel<State>(initialState: State, application: Application): Andr
     /** This function is made as an extension because when we call it, it is yellow
      * and this is better for our UX
      *
-     * @param obj événement à transmettre à l'écran, par exemple une `Destination`.
+     * @param obj l'événement à envoyer à l'écran, par exemple une `Destination`.
      */
     protected fun ViewModel<State>.sendEvent(obj: Any) {
         viewModelScope.launch {
@@ -62,11 +62,12 @@ open class ViewModel<State>(initialState: State, application: Application): Andr
     /** This function is made as an extension because when we call it, it is yellow
      * and this is better for our UX too
      *
-     * Observe une source qui émet plusieurs fois (une table Realm, par exemple) : le travail se fait hors
-     * du thread principal, et chaque résultat revient sur le thread principal pour pouvoir mettre l'état à jour.
+     * Observe une source qui renvoie plusieurs valeurs dans le temps (une table Realm, par exemple).
+     * Le travail se fait en arrière-plan (`Dispatchers.IO`), et chaque résultat revient sur le thread
+     * principal (`Dispatchers.Main`), le seul qui a le droit de mettre l'écran à jour.
      *
-     * @param source flux à observer.
-     * @param onResult appelé à chaque valeur reçue, ou une fois avec l'erreur si le flux échoue.
+     * @param source le flux à observer.
+     * @param onResult appelé à chaque nouvelle valeur, ou une fois avec l'erreur si le flux plante.
      */
     fun <T> AndroidViewModel.collectData(
         source: suspend () -> Flow<T>,
@@ -88,9 +89,9 @@ open class ViewModel<State>(initialState: State, application: Application): Andr
     }
 
     /**
-     * Charge une donnée une seule fois, hors du thread principal, puis rend le résultat sur le thread principal.
+     * Charge une donnée une seule fois, en arrière-plan, puis renvoie le résultat sur le thread principal.
      *
-     * @param source chargement à exécuter, par exemple un appel de repository.
+     * @param source le chargement à faire, par exemple un appel au repository.
      * @param onResult appelé une fois, avec la donnée ou avec l'erreur.
      */
     fun <T> AndroidViewModel.fetchData(

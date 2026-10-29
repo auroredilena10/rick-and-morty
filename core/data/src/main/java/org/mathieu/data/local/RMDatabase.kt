@@ -9,7 +9,7 @@ import org.mathieu.data.local.objects.LocationObject
 import kotlin.reflect.KClass
 
 /**
- * Base Realm de l'application : la liste des classes stockées et la version du schéma sont déclarées ici, une seule fois.
+ * La base Realm de l'app. C'est ici, et seulement ici, qu'on liste les tables et la version du schéma.
  */
 internal class RMDatabase : RealmDatabase(
     "rick and morty",
@@ -17,14 +17,14 @@ internal class RMDatabase : RealmDatabase(
         CharacterObject::class,
         LocationObject::class
     ),
-    // Version 2 : ajout de LocationObject. Realm efface alors l'ancienne base (deleteRealmIfMigrationNeeded) :
-    // acceptable ici car tout ce qu'elle contient se recharge depuis l'API.
+    // Version 2 depuis l'ajout de LocationObject. Au changement de version, Realm vide la base
+    // (deleteRealmIfMigrationNeeded) : ce n'est pas grave ici, tout se recharge depuis l'API.
     2
 )
 
 /**
- * Ouvre la base Realm à la première requête seulement, puis la réutilise : ouvrir une base coûte cher,
- * et toutes les classes `XxxLocal` partagent ainsi la même instance.
+ * Ouvre la base à la première requête, puis garde la même : ouvrir une base prend du temps,
+ * et comme ça tous les `XxxLocal` travaillent sur la même instance.
  *
  * @param name nom du fichier de la base sur l'appareil.
  * @param schema classes Realm que la base peut contenir.
@@ -41,7 +41,9 @@ open class RealmDatabase(name: String, schema: Set<KClass<out TypedRealmObject>>
     private var realm: Realm? = null
 
     /**
-     * @param block requête à exécuter sur la base ouverte.
+     * Lance une lecture sur la base, en l'ouvrant si besoin.
+     *
+     * @param block requête à exécuter.
      * @return le résultat de [block].
      */
     suspend fun <R> use(block: suspend Realm.() -> R): R {
@@ -54,7 +56,8 @@ open class RealmDatabase(name: String, schema: Set<KClass<out TypedRealmObject>>
     }
 
     /**
-     * Toute modification passe par une transaction Realm, pour qu'une écriture interrompue ne laisse pas la base à moitié modifiée.
+     * Écrit dans la base, toujours dans une transaction : si l'écriture s'arrête au milieu, rien n'est gardé
+     * et la base n'est pas à moitié modifiée.
      *
      * @param block modifications à appliquer.
      * @return le résultat de [block].
