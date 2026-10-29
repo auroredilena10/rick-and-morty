@@ -66,9 +66,9 @@ fun HttpResponse.accept(vararg codes: HttpStatusCode) = when (status) {
  * Ce sont des `class` et pas des `object` : une exception retient l'endroit où elle a été lancée,
  * il en faut une nouvelle à chaque fois.
  *
- * @property message description de l'erreur.
+ * @param message description de l'erreur, gardée par [Exception] et lisible avec `message`.
  */
-sealed class HttpException(override val message: String): Exception() {
+sealed class HttpException(message: String) : Exception(message) {
     class NotAccepted : HttpException(message = "Http code not accepted.")
     class ForbiddenAccess : HttpException(message = "Forbidden access.")
     class InternalServerError : HttpException(message = "Internal server error.")

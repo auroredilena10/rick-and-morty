@@ -1,5 +1,3 @@
-@file:Suppress("UnusedReceiverParameter")
-
 package org.mathieu.ui
 
 import android.app.Application

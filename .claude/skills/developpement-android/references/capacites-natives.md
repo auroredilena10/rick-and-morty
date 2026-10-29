@@ -65,9 +65,9 @@ Exigée : **au moins une** extension de `Context`, appelée par un Manager (dans
  */
 internal fun Context.vibrator(): Vibrator =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-        getSystemService(VibratorManager::class.java).defaultVibrator
+        this.getSystemService(VibratorManager::class.java).defaultVibrator
     else
-        getSystemService(Vibrator::class.java)
+        this.getSystemService(Vibrator::class.java)
 ```
 
 ## Intent Android

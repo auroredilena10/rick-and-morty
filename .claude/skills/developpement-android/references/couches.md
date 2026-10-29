@@ -73,12 +73,12 @@ Mappers : fonctions d'extension, à côté de l'objet Realm (comme `CharacterRes
 
 ```kotlin
 internal fun TaskResponse.toRealmObject() = TaskObject().also { obj ->
-    obj.id = id
-    obj.title = title
-    obj.done = done
+    obj.id = this.id
+    obj.title = this.title
+    obj.done = this.done
 }
 
-internal fun TaskObject.toModel() = Task(id = id, title = title, isDone = done)
+internal fun TaskObject.toModel() = Task(id = this.id, title = this.title, isDone = this.done)
 ```
 
 ## Repository, local d'abord
