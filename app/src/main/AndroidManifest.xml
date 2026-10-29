@@ -5,6 +5,9 @@
     <!-- Permission normale : Ktor interroge l'API Rick et Morty, aucune demande à l'utilisateur. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Permission normale : VibrationManagerImpl fait vibrer l'appareil au clic sur la carte d'un lieu. Sans cette ligne, Android bloque l'appel. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <!--
         CleanRmApiApplication démarre Koin avant toute activité, pour que les ViewModels trouvent leurs dépendances.
         Les fichiers de règles de sauvegarde sont encore les modèles vides d'Android Studio : tout est sauvegardé par défaut.

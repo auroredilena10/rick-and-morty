@@ -32,11 +32,28 @@ internal class CharacterLocal(private val database: RealmDatabase) {
     }
 
     /**
-     * @param characters personnages à enregistrer, par exemple une page entière de l'API.
-     * @return la même liste, pour pouvoir enchaîner.
+     * Lit plusieurs personnages en une seule requête, plutôt qu'une par identifiant :
+     * un lieu peut avoir une centaine de résidents.
+     *
+     * @param ids identifiants des personnages voulus.
+     * @return les [CharacterObject] déjà enregistrés parmi [ids] ; ceux jamais chargés sont absents.
      */
-    suspend fun saveCharacters(characters: List<CharacterObject>) = characters.onEach {
-        insert(it)
+    suspend fun getCharacters(ids: List<Int>): List<CharacterObject> =
+        if (ids.isEmpty()) emptyList()
+        // La syntaxe {1, 2, 3} est la liste littérale du langage de requête Realm ; vide, elle serait invalide.
+        else database.use { query<CharacterObject>("id IN {${ids.joinToString()}}").find() }
+
+    /**
+     * Enregistre tous les personnages dans une seule transaction : une transaction par personnage
+     * ralentissait l'enregistrement d'une page ou des résidents d'un lieu.
+     *
+     * @param characters personnages à enregistrer, par exemple une page entière de l'API.
+     */
+    suspend fun saveCharacters(characters: List<CharacterObject>) {
+        if (characters.isEmpty()) return
+        database.write {
+            characters.forEach { copyToRealm(it, UpdatePolicy.ALL) }
+        }
     }
 
     /**

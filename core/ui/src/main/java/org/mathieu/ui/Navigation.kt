@@ -20,6 +20,14 @@ sealed class Destination(val route: String, val arguments: List<NamedNavArgument
             route = "characterDetail/$characterId",
             arguments = listOf(navArgument("characterId") { type = NavType.IntType })
         )
+
+    // Seul l'identifiant voyage dans la route : l'écran recharge le lieu par son repository,
+    // ce qui le garde valable même si Android recrée l'écran.
+    class LocationDetails(locationId: String = "{locationId}"):
+        Destination(
+            route = "locationDetail/$locationId",
+            arguments = listOf(navArgument("locationId") { type = NavType.IntType })
+        )
 }
 
 fun NavGraphBuilder.composable(

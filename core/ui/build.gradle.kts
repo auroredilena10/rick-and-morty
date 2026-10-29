@@ -8,6 +8,7 @@ plugins {
 // region Android
 val compileVersion: String by project
 val minVersion: String by project
+val composeCompilerVersion: String by project
 
 android {
     namespace = "org.mathieu.ui"
@@ -28,7 +29,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = composeCompilerVersion
     }
 
     // JVM Part

@@ -2,8 +2,12 @@ package org.mathieu.data.di
 
 import io.ktor.client.HttpClient
 import org.koin.dsl.module
+import org.mathieu.data.managers.LinkManagerImpl
+import org.mathieu.data.managers.VibrationManagerImpl
 import org.mathieu.data.repositories.CharacterRepositoryImpl
 import org.mathieu.data.repositories.LocationRepositoryImpl
+import org.mathieu.domain.managers.LinkManager
+import org.mathieu.domain.managers.VibrationManager
 import org.mathieu.domain.repositories.CharacterRepository
 import org.mathieu.domain.repositories.LocationRepository
 
@@ -49,5 +53,11 @@ val dataModule = module {
             get()
         )
     }
+
+    // Comme les repositories, chaque Manager est déclaré sous son interface du Domain ; le get() fournit
+    // le Context de l'application, enregistré par androidContext() au démarrage de Koin.
+    single<VibrationManager> { VibrationManagerImpl(get()) }
+
+    single<LinkManager> { LinkManagerImpl(get()) }
 
 }

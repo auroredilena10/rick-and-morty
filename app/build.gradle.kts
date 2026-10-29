@@ -8,6 +8,7 @@ plugins {
 // region Android
 val compileVersion: String by project
 val minVersion: String by project
+val composeCompilerVersion: String by project
 
 android {
     namespace = "org.mathieu.projet2"
@@ -42,7 +43,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = composeCompilerVersion
     }
 
     // JVM Part
@@ -72,6 +73,7 @@ dependencies {
     implementation(project(":core:ui"))
 
     implementation(project(":features:characters"))
+    implementation(project(":features:locations"))
 
     //Compose
     // La BOM fixe la version de material3 pour toutes les configurations, y compris celle analysée par le Lint.

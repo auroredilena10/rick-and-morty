@@ -2,5 +2,9 @@
     <string name="characters_title">Characters</string>
     <string name="characters_error">Characters could not be loaded.</string>
     <string name="character_details_error">This character could not be loaded.</string>
-    <string name="character_details_back">Back</string>
+    <string name="character_details_open_avatar">Open the picture in full size</string>
+    <string name="location_details_error">This location could not be loaded.</string>
+    <string name="location_details_residents">Residents</string>
+    <string name="location_details_no_residents">Nobody lives here.</string>
+    <string name="top_bar_back">Back</string>
 </resources>

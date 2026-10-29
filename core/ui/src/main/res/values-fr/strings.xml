@@ -2,5 +2,9 @@
     <string name="characters_title">Personnages</string>
     <string name="characters_error">Impossible de charger les personnages.</string>
     <string name="character_details_error">Impossible de charger ce personnage.</string>
-    <string name="character_details_back">Retour</string>
+    <string name="character_details_open_avatar">Ouvrir l\'image en grand</string>
+    <string name="location_details_error">Impossible de charger ce lieu.</string>
+    <string name="location_details_residents">Résidents</string>
+    <string name="location_details_no_residents">Personne n\'habite ici.</string>
+    <string name="top_bar_back">Retour</string>
 </resources>

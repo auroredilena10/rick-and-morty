@@ -82,7 +82,7 @@ internal class LocationRepositoryImpl(
      * qu'ils viennent de la base ou de l'API.
      */
     private suspend fun getResidents(ids: List<Int>): List<CharacterObject> {
-        val saved = ids.mapNotNull { characterLocal.getCharacter(it) }
+        val saved = characterLocal.getCharacters(ids)
         val missingIds = ids - saved.map { it.id }.toSet()
 
         val fetched = if (missingIds.isEmpty()) emptyList()
