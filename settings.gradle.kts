@@ -24,6 +24,9 @@ pluginManagement {
 // endregion
 
 // region Dépôts des dépendances
+// Gradle 8.0 marque encore cette API comme expérimentale, alors qu'elle vient du modèle de projet d'Android Studio :
+// l'avertissement est masqué ici seulement.
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     // Les dépôts ne sont déclarés qu'ici : un module qui en ajouterait un ferait échouer le build.
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)

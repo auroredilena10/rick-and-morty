@@ -6,4 +6,6 @@
         du projet, aujourd'hui en Kotlin 1.8 : les versions restent figées dans gradle.properties.
     -->
     <issue id="GradleDependency" severity="ignore" />
+    <!-- Même raison pour le plugin Android lui-même (AGP 8.1.4) : passer à AGP 9 demanderait Kotlin 2. -->
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
 </lint>

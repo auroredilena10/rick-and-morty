@@ -3,7 +3,7 @@ package org.mathieu.data.managers
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import org.mathieu.domain.managers.LinkManager
 
 /**
@@ -15,7 +15,7 @@ import org.mathieu.domain.managers.LinkManager
 internal class LinkManagerImpl(private val context: Context) : LinkManager {
 
     override fun open(url: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             // Obligatoire : le Context de l'application n'a pas de pile d'écrans, l'application ouverte en démarre une.
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         try {

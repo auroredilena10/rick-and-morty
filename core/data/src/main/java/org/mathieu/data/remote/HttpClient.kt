@@ -7,12 +7,8 @@ import io.ktor.client.plugins.HttpCallValidator
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.HttpRequestBuilder
-import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.*
 
 /**
@@ -43,23 +39,12 @@ fun createHttpClient(
     install(HttpCallValidator) {
         validateResponse {
             when (it.status.value) {
-                HttpStatusCode.Forbidden.value -> throw HttpException.ForbiddenAccess
-                in 500..599 -> throw HttpException.InternalServerError
+                HttpStatusCode.Forbidden.value -> throw HttpException.ForbiddenAccess()
+                in 500..599 -> throw HttpException.InternalServerError()
             }
         }
 
     }
-}
-
-/**
- * Envoie un corps en JSON en précisant son type, sans quoi le serveur ne saurait pas comment le lire.
- *
- * @receiver la requête en cours de construction.
- * @param body objet sérialisable à envoyer.
- */
-inline fun <reified T> HttpRequestBuilder.setBodyJson(body: T) {
-    contentType(ContentType.Application.Json)
-    setBody(body)
 }
 
 /**
@@ -73,17 +58,18 @@ inline fun <reified T> HttpRequestBuilder.setBodyJson(body: T) {
  */
 fun HttpResponse.accept(vararg codes: HttpStatusCode) = when (status) {
     in codes -> this
-    else -> throw org.mathieu.data.remote.HttpException.NotAccepted
+    else -> throw HttpException.NotAccepted()
 }
 
 /**
  * Erreurs réseau connues. Une classe scellée liste tous les cas possibles,
- * pour qu'un `when` sur ces erreurs n'en oublie aucun.
+ * pour qu'un `when` sur ces erreurs n'en oublie aucun. Ce sont des classes et non des `object` :
+ * une exception garde la trace de l'endroit où elle est lancée, il en faut donc une neuve à chaque fois.
  *
  * @property message description de l'erreur.
  */
 sealed class HttpException(override val message: String): Exception() {
-    object NotAccepted: HttpException(message = "Http code not accepted.")
-    object ForbiddenAccess: HttpException(message = "Forbidden access.")
-    object InternalServerError: HttpException(message = "Internal server error.")
+    class NotAccepted : HttpException(message = "Http code not accepted.")
+    class ForbiddenAccess : HttpException(message = "Forbidden access.")
+    class InternalServerError : HttpException(message = "Internal server error.")
 }

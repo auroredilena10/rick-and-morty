@@ -12,13 +12,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import org.mathieu.characters.details.CharacterDetailsScreen
 import org.mathieu.characters.list.CharactersScreen
+import org.mathieu.locations.details.LocationDetailsScreen
+import org.mathieu.ui.Destination
 import org.mathieu.ui.composable
+import org.mathieu.ui.theme.LeTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            org.mathieu.ui.theme.LeTheme {
+            LeTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
@@ -38,17 +41,17 @@ private fun MainContent() {
     //https://developer.android.com/jetpack/compose/navigation?hl=fr
     NavHost(navController = navController, startDestination = "characters") {
 
-        composable(org.mathieu.ui.Destination.Characters) {
-            org.mathieu.characters.list.CharactersScreen(
+        composable(Destination.Characters) {
+            CharactersScreen(
                 navController
             )
         }
 
         composable(
-            destination = org.mathieu.ui.Destination.CharacterDetails()
+            destination = Destination.CharacterDetails()
         ) { backStackEntry ->
 
-            org.mathieu.characters.details.CharacterDetailsScreen(
+            CharacterDetailsScreen(
                 navController = navController,
                 id = backStackEntry.arguments?.getInt("characterId") ?: -1
             )
@@ -56,10 +59,10 @@ private fun MainContent() {
         }
 
         composable(
-            destination = org.mathieu.ui.Destination.LocationDetails()
+            destination = Destination.LocationDetails()
         ) { backStackEntry ->
 
-            org.mathieu.locations.details.LocationDetailsScreen(
+            LocationDetailsScreen(
                 navController = navController,
                 id = backStackEntry.arguments?.getInt("locationId") ?: -1
             )
